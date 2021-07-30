@@ -34,7 +34,8 @@ const userSchema = Schema({
 
 //Override the method toJSON to don't return the password when a user is created
 userSchema.methods.toJSON = function () {
-  const { __v, password, ...user } = this.toObject();
+  const { __v, password, _id, ...user } = this.toObject();
+  user.uid = _id;
   return user;
 };
 module.exports = model("User", userSchema);

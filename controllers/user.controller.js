@@ -3,35 +3,50 @@ const bcryptjs = require("bcryptjs");
 
 const User = require("../models/user");
 
-const userGet = (req = request, res = response) => {
-  const { q, name = "No name" } = req.query; //get query params
+const userGet = async (req = request, res = response) => {
+  //const { q, name = "No name" } = req.query; //get query params
   //res = response to have the autocomplete methods
+  const { limit = 5, from = 0 } = req.query;
+  const condition = { active: true };
+  //   //Validate that limit and from are numbers
+  //   const users = await User.find({ active: true }) //condition
+  //     .skip(Number(from))
+  //     .limit(Number(limit));
+  //   const total = await User.countDocuments({ active: true });
+
+  //Array desctructuring
+  //const result = await Promise.all([
+  const [total, users] = await Promise.all([
+    User.countDocuments(condition),
+    User.find(condition).skip(Number(from)).limit(Number(limit)),
+  ]);
   res.json({
-    msg: "get API - controller",
-    q,
-    name,
+    //result,
+    total,
+    users,
   });
 };
 
-const userPut = (req, res = response) => {
-  const id = req.params.id;
-  res.json({
-    msg: "put API - controller",
-    id,
-  });
+const userPut = async (req, res = response) => {
+  //Extract the data that we don't want to update
+  const { _id, password, google, email, ...userData } = req.body;
+
+  //Validate in the database
+  if (password) {
+    //Encrypt password by using hash (one way/ una via)
+    const salt = bcryptjs.genSaltSync(); //10 spins is the default value
+    userData.password = bcryptjs.hashSync(password, salt);
+  }
+
+  //Here we have the user updated
+  const user = await User.findByIdAndUpdate(_id, userData);
+
+  res.json(user);
 };
 
 const userPost = async (req, res = response) => {
   const { name, email, password, role } = req.body;
   const user = new User({ name, email, password, role });
-
-  //Verify if email exists
-  const emailExists = await User.findOne({ email });
-  if (emailExists) {
-    return res.status(400).json({
-      msg: "The email entered already exists",
-    });
-  }
 
   //Encrypt password by using hash (one way/ una via)
   const salt = bcryptjs.genSaltSync(); //10 spins is the default value
@@ -46,9 +61,17 @@ const userPost = async (req, res = response) => {
   });
 };
 
-const userDelete = (req, res = response) => {
+const userDelete = async (req, res = response) => {
+  const { id } = req.params;
+  //TODO: validate that deleted user (logic delete) exists
+  //Logic delete
+  const user = await User.findByIdAndUpdate(id, { active: false });
+  const authUser = req.user;
+  //Fisic delete
+  //const user = await User.findByIdAndDelete(id);
   res.json({
-    msg: "delete API - controller",
+    user,
+    authUser,
   });
 };
 module.exports = {
