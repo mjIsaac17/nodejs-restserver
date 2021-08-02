@@ -65,7 +65,7 @@ const userDelete = async (req, res = response) => {
   const { id } = req.params;
   //TODO: validate that deleted user (logic delete) exists
   //Logic delete
-  const user = await User.findByIdAndUpdate(id, { active: false });
+  const user = await User.findByIdAndUpdate(id, { active: false }); //we are setting 'active'= false
   const authUser = req.user;
   //Fisic delete
   //const user = await User.findByIdAndDelete(id);

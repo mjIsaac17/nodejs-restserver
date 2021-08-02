@@ -14,11 +14,11 @@ const {
 } = require("../helpers/db-validators");
 // const { validateJWT } = require("../middlewares/validate-jwt");
 // const { isRoleAdmin, userInRole } = require("../middlewares/validate-role");
-// const { validateUserFields } = require("../middlewares/validateUser");
+// const { validateFields } = require("../middlewares/validateUser");
 
 const {
   validateJWT,
-  validateUserFields,
+  validateFields,
   isRoleAdmin,
   userInRole,
 } = require("../middlewares"); // this takes index.js as default
@@ -31,9 +31,9 @@ router.put(
   "/:id",
   [
     check("id", "Invalid ID").isMongoId(),
-    validateUserFields,
+    validateFields,
     check("id").custom(checkIfUserIdExists),
-    validateUserFields,
+    validateFields,
   ],
   userPut
 );
@@ -52,7 +52,7 @@ router.post(
     check("role").custom(isRoleValid), //the line below is the same
     //check("role").custom((role) => isRoleValid(role)),
     // check("role", "Invalid rol").isIn(["ADMIN_ROLE", "USER_ROLE"]),
-    validateUserFields,
+    validateFields,
   ],
   userPost
 );
@@ -64,9 +64,9 @@ router.delete(
     // isRoleAdmin,
     userInRole("USER_ROLE", "ADMIN_ROLE"),
     check("id", "Invalid id").isMongoId(),
-    validateUserFields,
+    validateFields,
     check("id").custom(checkIfUserIdExists),
-    validateUserFields,
+    validateFields,
   ],
   userDelete
 );
