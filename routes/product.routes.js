@@ -52,9 +52,6 @@ router.put(
     validateFields,
     check("id").custom(checkIfProductIdExists), // we could check this until updating the records
     validateFields,
-    check("name", "A product name is required").notEmpty(),
-    validateFields,
-    //check("categoryId", "Invalid category id").isMongoId(),
     check("categoryId").custom(checkIfCategoryIdExists),
     validateFields,
   ],

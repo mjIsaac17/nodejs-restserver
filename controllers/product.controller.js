@@ -50,12 +50,14 @@ const saveProduct = async (req, res = response) => {
 
 // updateCategory (name)
 const updateProduct = async (req, res = response) => {
-  //const { name, user, ...data } = req.body;
+  const { user, ...data } = req.body;
 
-  const productData = req.body;
-  productData.name = productData.name.toUpperCase();
-  productData.user = req.user.id;
+  if (data.name) data.name = data.name.toUpperCase();
 
+  const productData = {
+    user: req.user.id,
+    ...data,
+  };
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     productData,
@@ -66,9 +68,13 @@ const updateProduct = async (req, res = response) => {
 
 // deleteCategory -> state = false
 const deleteProduct = async (req, res = response) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, {
-    active: false,
-  }, {new: true});
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    {
+      active: false,
+    },
+    { new: true }
+  );
   if (!product) {
     return res.status(401).json({
       msg: "Product not found",
